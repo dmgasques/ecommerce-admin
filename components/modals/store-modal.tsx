@@ -16,6 +16,9 @@ import {
 } from '../ui/form';
 import { Input } from '../ui/input';
 import { Button } from '../ui/button';
+import { useState } from 'react';
+import axios from 'axios';
+import { useToast } from '../ui/use-toast';
 
 const formValuesSchema = z.object({
   name: z.string().min(1)
@@ -25,6 +28,8 @@ type FormValues = z.infer<typeof formValuesSchema>;
 
 export const StoreModal = () => {
   const storeModal = useStoreModal();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formValuesSchema),
@@ -33,8 +38,24 @@ export const StoreModal = () => {
     }
   });
 
-  const onSubmit = (values: FormValues) => {
+  const onSubmit = async (values: FormValues) => {
     console.log(values);
+    setLoading(true);
+
+    try {
+      const { data } = await axios.post('/api/stores', values);
+      toast({
+        title: 'Store created successfully!'
+      });
+    } catch (error) {
+      console.log(error);
+      toast({
+        title: 'Something went wrong. Try again.',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -55,7 +76,11 @@ export const StoreModal = () => {
                   <FormItem>
                     <FormLabel>Name</FormLabel>
                     <FormControl>
-                      <Input placeholder='E-commerce' {...field} />
+                      <Input
+                        disabled={loading}
+                        placeholder='E-commerce'
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -65,7 +90,9 @@ export const StoreModal = () => {
                 <Button variant='outline' onClick={storeModal.onClose}>
                   Cancel
                 </Button>
-                <Button type='submit'>Continue</Button>
+                <Button type='submit' disabled={loading}>
+                  Continue
+                </Button>
               </div>
             </form>
           </Form>
