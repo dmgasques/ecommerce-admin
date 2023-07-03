@@ -94,7 +94,7 @@ function BillboardForm({ billboard }: BillboardFormProps) {
     try {
       await axios.delete(`/api/${storeId}/billboards/${billboardId}`);
       router.refresh();
-      router.push('/');
+      router.push(`/${storeId}/billboards`);
       toast({
         title: 'Billboard deleted'
       });
@@ -177,7 +177,6 @@ function BillboardForm({ billboard }: BillboardFormProps) {
           </Button>
         </form>
       </Form>
-      <Separator />
     </>
   );
 }
