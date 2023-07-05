@@ -24,6 +24,7 @@ model Store {
   sizes      Size[]      @relation("StoreToSize")
   colors     Color[]     @relation("StoreToColor")
   products   Product[]   @relation("StoreToProduct")
+  orders     Order[]     @relation("StoreToOrder")
 }
 
 model Billboard {
@@ -97,11 +98,12 @@ model Product {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  store    Store    @relation("StoreToProduct", fields: [storeId], references: [id])
-  category Category @relation("CategoryToProduct", fields: [categoryId], references: [id])
-  size     Size     @relation(fields: [sizeId], references: [id])
-  color    Color    @relation(fields: [colorId], references: [id])
-  images   Image[]
+  store      Store       @relation("StoreToProduct", fields: [storeId], references: [id])
+  category   Category    @relation("CategoryToProduct", fields: [categoryId], references: [id])
+  size       Size        @relation(fields: [sizeId], references: [id])
+  color      Color       @relation(fields: [colorId], references: [id])
+  images     Image[]
+  orderItems OrderItem[]
 
   @@index([storeId])
   @@index([categoryId])
@@ -118,6 +120,35 @@ model Image {
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
+  @@index([productId])
+}
+
+model Order {
+  id        String  @id @default(uuid())
+  phone     String
+  address   String
+  isPaid    Boolean @default(false)
+  storeId   String 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orderItems OrderItem[]
+  store      Store @relation("StoreToOrder", fields: [storeId], references: [id])
+
+  @@index([storeId])
+}
+
+model OrderItem {
+  id        String @id @default(uuid())
+  orderId   String
+  productId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  order   Order   @relation(fields: [orderId], references: [id])
+  product Product @relation(fields: [productId], references: [id])
+
+  @@index([orderId])
   @@index([productId])
 }
 
